@@ -113,18 +113,6 @@ class Network:
     def accuracy(self, session, data, true_out):
         return session.run(self.acc, feed_dict={self.data: data, self.true_labels: true_out, self.dropout_rate: 0})
 
-
-#
-#  페북에서 이런걸 하시다니 굉장히 재미난 것 같습니다 ^^ 그런데 전직 kaggler(?)로써 한가지 제안을 드리면,
-#  그냥 어떤 방법이든 다 써도 된다고 하면 어떤 모델을 쓰든 CNN계열 모델에 elastic distortion으로
-# data augmentation 엄청나게 많이 하고 ensemble averaging 수십개하면 정확도가 조금이라도 무조건
-# 올라가기때문에 자칫하면 "데이터 불리기" / "리소스 누가 더 많이 쓰나"의 경쟁이 되기 쉽상입니다..
-#
-# 좀 더 창의적인 경쟁을 위해서, 몇가지 부문으로 나누어서 평가를 하는 것은 어떨까요?
-# 젤 기본적으로는 CNN(domain knowledge 활용) / 비CNN(permutation invariant), data augmentation /
-# not aug 이 생각이 나네요.. (지금하긴 좀 복잡하지만 나중에는 semi-sup setting도
-# 하면 재밌을 거 같아 보입니다 ^^)
-
 Layer.mean = 0.0
 Layer.stddev = 0.01
 batch_size = 250
