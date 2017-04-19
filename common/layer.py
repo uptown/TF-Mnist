@@ -13,6 +13,56 @@ class Layer:
         raise NotImplemented
 
 
+#
+# def batch_norm(x, n_out, phase_train):
+#     """
+#     Batch normalization on convolutional maps.
+#     Ref.: http://stackoverflow.com/questions/33949786/how-could-i-use-batch-normalization-in-tensorflow
+#     Args:
+#         x:           Tensor, 4D BHWD input maps
+#         n_out:       integer, depth of input maps
+#         phase_train: boolean tf.Varialbe, true indicates training phase
+#         scope:       string, variable scope
+#     Return:
+#         normed:      batch-normalized maps
+#     """
+#     with tf.variable_scope('bn'):
+#         beta = tf.Variable(tf.constant(0.0, shape=[n_out]),
+#                                      name='beta', trainable=True)
+#         gamma = tf.Variable(tf.constant(1.0, shape=[n_out]),
+#                                       name='gamma', trainable=True)
+#         batch_mean, batch_var = tf.nn.moments(x, [0,1,2], name='moments')
+#         ema = tf.train.ExponentialMovingAverage(decay=0.5)
+#
+#         def mean_var_with_update():
+#             ema_apply_op = ema.apply([batch_mean, batch_var])
+#             with tf.control_dependencies([ema_apply_op]):
+#                 return tf.identity(batch_mean), tf.identity(batch_var)
+#
+#         mean, var = tf.cond(phase_train,
+#                             mean_var_with_update,
+#                             lambda: (ema.average(batch_mean), ema.average(batch_var)))
+#         normed = tf.nn.batch_normalization(x, mean, var, beta, gamma, 1e-3)
+#     return normed
+#
+
+class LSTMLayer(Layer):
+    def __init__(self, name, n_hidden, n_classes):
+        super().__init__(name)
+
+        # TODO 이미 빌드된 모델 때문에 name scope을 쓰지 않는다
+        self.n_hidden = n_hidden
+        self.w = tf.Variable(tf.truncated_normal([n_hidden, n_classes], self.mean, self.stddev),
+                             name=name + ".w")
+        self.b = tf.Variable(tf.truncated_normal([n_classes], self.mean, self.stddev), name=name + ".b")
+
+    def connect(self, x):
+        # x = tf.unstack(tf.reshape(tf.transpose(data, [0, 3, 1, 2]), [-1, 128 * 12, 12]), 128 * 12, 1)  # 128, 2, 2
+        lstm_cell = tf.contrib.rnn.BasicLSTMCell(self.n_hidden)
+        outputs, states = tf.contrib.rnn.static_rnn(lstm_cell, x, dtype=tf.float32)
+        return tf.matmul(outputs[-1], self.w) + self.b
+
+
 class ConvolutionLayer(Layer):
     def __init__(self, name, in_ch, out_ch, c_size=3, strides=None, padding="SAME", activation=tf.nn.relu):
         super().__init__(name)
@@ -30,9 +80,12 @@ class ConvolutionLayer(Layer):
                 name=self.name + ".f")
             self.b = tf.Variable(tf.truncated_normal([self.out_ch], self.mean, self.stddev), name=self.name + ".b")
 
-    def connect(self, data):
+    def connect(self, data, is_training=False):
         t = tf.nn.conv2d(data, self.f, strides=self.strides, padding=self.padding)
         t = tf.nn.bias_add(t, self.b)
+
+        # with tf.variable_scope(self.name):
+        #     t = batch_norm(t, self.out_ch, is_training)
         return self.activation(t)
 
 
@@ -124,11 +177,11 @@ class FullConnectedLayer(Layer):
             else:
                 x = tf.reshape(data, [-1, self.in_ch])
         fc = tf.nn.bias_add(tf.matmul(x, self.w), self.b)
+
         return self.activation(fc)
 
 
 class DropConnectedLayer(FullConnectedLayer):
-
     def __init__(self, name, in_ch, out_ch, rate, activation=tf.nn.relu):
         super().__init__(name, in_ch, out_ch, activation)
         self.rate = rate
