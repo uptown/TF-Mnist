@@ -45,7 +45,7 @@ with tf.device('/gpu:0'):
                 j += 1
             if acc > max_acc:
                 max_iter = i
-                save_path = saver.save(sess, "model/model.ckpt")
+                save_path = saver.save(sess, "model_/model.ckpt")
             max_acc = max(max_acc, acc)
             print("Acc: ", int(acc), "/" + str(len(xs)))
             print("Max Acc: ", int(max_acc), "/" + str(len(xs)), max_iter)

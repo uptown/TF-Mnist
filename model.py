@@ -19,7 +19,7 @@ def build(data, true_labels, dropout_rate, learning_rate=0.0001):
     cnn.add_layer_and_connect(ConvolutionLayer("conv8", 512, 1024, c_size=7, padding="VALID"))
     cnn.add_layer_and_connect(ConvolutionLayer("conv9", 1024, 1024, c_size=7, padding="SAME"))
 
-    cnn.add_layer_and_connect(DropConnectedLayer("fc1", [2 * 2 * 1024, 12 * 12 * 128], 1024, 0.3), ["conv9", "pool1"])
+    cnn.add_layer_and_connect(DropConnectedLayer("fc1", [2 * 2 * 1024, 12 * 12 * 128], 1024, dropout_rate), ["conv9", "pool1"])
 
     cnn.add_layer_and_connect(FullConnectedLayer("fc1_1", [28 * 28], 2048), ["data"])
 

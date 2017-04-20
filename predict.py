@@ -21,7 +21,7 @@ saver = tf.train.Saver()
 with tf.device('/gpu:0'):
     sess = tf.Session()
     sess.run(tf.global_variables_initializer())
-    saver.restore(sess, "model_9962/model.ckpt")
+    saver.restore(sess, "model_9963/model.ckpt")
 
     xs, ys = mnist.test.images, mnist.test.labels
     j = 0
