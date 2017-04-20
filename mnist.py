@@ -28,7 +28,7 @@ with tf.device('/gpu:0'):
     max_acc = 0
     max_iter = 0
     epoch = 100
-    for i in range(1000 * epoch):
+    for i in range(172 * epoch):
         # test classification again, should have a higher probability about tiger
         if i % 100 == 0 and i != 0:
             print(i)
