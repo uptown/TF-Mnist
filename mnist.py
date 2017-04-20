@@ -66,7 +66,7 @@ with tf.device('/gpu:0'):
 
         # 가로 수축, 세로 수축 .... 시간이 없어서 못함ㅠㅠㅠ
         #
-        t
+
         batch_xs4 = np.concatenate((np.zeros([batch_size, 28, 1]), np.resize(batch_xs, [batch_size, 28, 26]),
                                     np.zeros([batch_size, 28, 1])), axis=2)
 
